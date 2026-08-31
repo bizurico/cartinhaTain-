@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uma surpresa para você</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #fce4ec;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Montserrat', sans-serif;
+      overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .envelope-wrapper {
+      position: relative;
+      width: 320px;
+      height: 220px;
+      cursor: pointer;
+      transition: transform 0.5s ease-in-out;
+      perspective: 1000px; 
+    }
+
+    /* Desce o envelope um pouco mais para caber a carta toda na tela */
+    .envelope-wrapper.open {
+      transform: translateY(150px); 
+    }
+
+    .envelope-back {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: #f06292;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .envelope-front {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 3;
+    }
+
+    .envelope-front::before {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-bottom: 120px solid #e91e63;
+      border-radius: 0 0 10px 10px;
+      z-index: 4; 
+    }
+
+    /* Corrigido: As bordas laterais recuperaram a cor, tapando a transparência */
+    .envelope-front::after {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0;
+      border-left: 160px solid #d81b60;
+      border-right: 160px solid #d81b60;
+      border-top: 110px solid transparent;
+      border-bottom: 110px solid transparent;
+      border-radius: 0 0 10px 10px;
+      z-index: 3;
+    }
+
+    .eyes-image {
+      position: absolute;
+      top: 75%; 
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 270px; 
+      z-index: 5; 
+      opacity: 0; 
+      transition: opacity 0.2s 0s; 
+      pointer-events: none; 
+    }
+
+    .envelope-wrapper.open .eyes-image {
+      opacity: 1; 
+      transition: opacity 0.5s 0.4s; 
+    }
+
+    .eyes-image img {
+      width: 100%;
+      display: block;
+    }
+
+    .flap {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 130px;
+      transform-origin: top;
+      z-index: 6; 
+      transition: transform 0.4s 0.5s, z-index 0s 0.7s; 
+      transform-style: preserve-3d; 
+    }
+
+    .flap-front, .flap-back {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      backface-visibility: hidden; 
+    }
+
+    .flap-front {
+      background-color: #f48fb1;
+      display: flex;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .flap-back {
+      background-color: #e91e63; 
+      transform: rotateY(180deg); 
+      z-index: 1;
+    }
+
+    .envelope-wrapper.open .flap {
+      transform: rotateX(180deg);
+      z-index: 1; 
+      transition: transform 0.4s, z-index 0s 0.2s; 
+    }
+
+    .flap-content {
+      margin-top: 25px; 
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .letter {
+      position: absolute;
+      bottom: 10px; left: 50%;
+      transform: translateX(-50%);
+      width: 280px;
+      height: 190px;
+      max-height: 400px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      box-sizing: border-box;
+      z-index: 2; 
+      display: flex;
+      flex-direction: column;
+      overflow-y: hidden;
+      cursor: default;
+      transition: transform 0.5s 0s, height 0.5s 0s; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+
+    /* Puxa a carta mais para cima (-200px) e ajusta a altura máxima para encaixar tudo */
+    .envelope-wrapper.open .letter {
+      transform: translateX(-50%) translateY(-200px);
+      height: 60vh;
+      max-height: 400px;
+      z-index: 2; 
+      overflow-y: auto; 
+      transition: transform 0.5s 0.4s, height 0.5s 0.4s; 
+    }
+
+    .letter::-webkit-scrollbar { width: 6px; }
+    .letter::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 5px; }
+    .letter::-webkit-scrollbar-thumb { background: #f48fb1; border-radius: 5px; }
+
+    .letter h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2rem;
+      color: #d81b60;
+      margin: 0 0 15px 0;
+      text-align: center;
+    }
+
+    .letter-body p {
+      font-size: 0.95rem;
+      color: #424242;
+      line-height: 1.6;
+      margin: 0;
+      text-align: left;
+      padding-bottom: 20px; 
+    }
+
+    .instruction {
+      position: absolute;
+      bottom: -60px;
+      width: 100%;
+      text-align: center;
+      color: #d81b60;
+      font-weight: 600;
+      font-size: 0.9rem;
+      animation: bounce 2s infinite;
+      transition: opacity 0.4s;
+    }
+
+    .envelope-wrapper.open + .instruction {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="envelope-wrapper" id="envelopeWrapper">
+    <div class="envelope-back"></div>
+    
+    <div class="letter" id="letter">
+      <h1>oi bonequinha!</h1>
+      <div class="letter-body">
+
+        <p>eu sei que esses encontros geralmente tem uma homenagem bem bonita no final, onde geralmente dão cartinhas de pessoas importantes e eu não queria ficar de fora dessa, por isso eu vim aqui dar minha colaboração! eu sei que o dia não começou tão legal, com dores, cansaço e tudo mais, mas apesar de tudo isso eu fico feliz que você tenha ficado até o final, eu tô orgulhoso de você e espero que essa tenha sido uma experiência boa pra você, que você sinta de novo aquele sentimento de ter se encontrado, de alegria, de paz, que seu dia seja bom.</p>
+
+        <p>é muito legal ter você na minha vida e poder dividir tudo com você, vitórias, derrotas, sonhos, conquistas, é reconfortante saber que posso contar com você pra tudo que acontecer na minha vida, você é a pessoa mais forte e mais doce que eu conheço, é engraçado como você consegue ser os dois extremos ao mesmo tempo, você não é só uma alma gentil, você é a alma mais gentil de todas!</p>
+
+        <p>eu tenho muito orgulho de você, de quem você é e de quem você tá se tornando, você me inspira e me ensina a ser uma pessoa melhor, um homem melhor, um amigo melhor, eu tenho certeza que só sou esse Luís que eu me orgulho tanto por sua causa, então eu só tenho que agradecer por tudo que você fez e faz comigo e por mim, muito obrigado de verdade, você é o meu maior orgulho</p>
+
+        <p>eu te admiro tanto mas tanto, a sua personalidade, o seu jeito, a sua paciência, o seu esforço, a sua empatia, as suas atitudes, você como um todo, eu nunca vou poder ganhar na loteria pq com certeza gastei toda minha sorte com você, uma garota tão simpática, tão engraçada, com tantos conselhos bons, com uma visão tão admirável da realidade e o mais importante: com o melhor gosto musical do mundo!</p>
+
+        <p>além de tudo isso você é tão tão tão linda, sério, eu poderia ficar umas 4 horas em call com você só te olhando (muahahaha fiz isso já), eu amo seu cabelo, amo seus olhos, amo sua sobrancelha, amo seu sorriso, amo sua voz, eu amo você por inteira, eu tenho orgulho de ter você na minha vida, eu tenho orgulho de ter te encontrado, de poder estar com você, crescer com você e te ver crescer</p>
+
+        <p>você é a coisinha mais fofa desse mundo, tem hora que falando com você eu me esqueço de tudo e de todos ao meu redor, na minha mente só vem uma vontade imensa de proteger você e cuidar de você, eu quero poder te fazer feliz, quero fazer você se sentir vista, quero fazer você se sentir amada, quero que você saiba que nunca mais precisa estar sozinha de novo, eu sempre sempre sempre vou estar aqui com você, eu te amo demais, estar com você é a coisa que mais me faz bem, eu amo você, eu amo tudo que me lembra você, eu amo amar você</p>
+
+        <p>no meu coração você sempre vai ter uma casinha verde, pequena e confortável, na praia, com várias plantinhas e flores, com várias janelas, e uma vitrola e vários e vários vinis de todas as suas bandas favoritas, e um opala diplomata preto, lowrider, 4.1 na garagem! eu quero ser a sua casa, o seu conforto e o seu porto seguro, eu quero abraçar as suas dores, quero abraçar você</p>
+
+        <p>eu tenamo muitos tiri, tenamo do tamanho do céu, minha coelhinha, minha bonequinha linda e preciosa, eu amo você papai te ama muito</p>
+      </div>
+    </div>
+    
+    <div class="envelope-front"></div>
+    
+    <div class="eyes-image">
+      <img src="olhos.png" alt="Olhos">
+    </div>
+
+    <div class="flap">
+      <div class="flap-front">
+        <div class="flap-content">
+          De: Luis Henrique<br>
+          Para: Tainá Oliveira
+        </div>
+      </div>
+      <div class="flap-back"></div>
+    </div>
+  </div>
+  
+  <div class="instruction">Toque no envelope para abrir 💌</div>
+</div>
+
+<script>
+  const wrapper = document.getElementById('envelopeWrapper');
+  const letter = document.getElementById('letter');
+
+  wrapper.addEventListener('click', () => {
+    wrapper.classList.toggle('open');
+  });
+
+  letter.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+</script>
+
+</body>
+</html>
